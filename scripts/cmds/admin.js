@@ -41,6 +41,42 @@ module.exports = {
 			notAdmin: "⚠️ | %1 users don't have admin role:\n%2",
 			missingIdRemove: "⚠️ | Please enter ID or tag user to remove admin role",
 			listAdmin: "👑 | List of admins:\n%1"
+		},
+		tl: {
+			added: "✅ | Naidagdag ang admin role para sa %1 user:\n%2",
+			alreadyAdmin: "\n⚠️ | %1 user ay mayroon nang admin role:\n%2",
+			missingIdAdd: "⚠️ | Mangyaring maglagay ng ID o mag-tag ng user para idagdag ang admin role",
+			removed: "✅ | Naalis ang admin role ng %1 user:\n%2",
+			notAdmin: "⚠️ | %1 user ay walang admin role:\n%2",
+			missingIdRemove: "⚠️ | Mangyaring maglagay ng ID o mag-tag ng user para alisin ang admin role",
+			listAdmin: "👑 | Listahan ng mga admin:\n%1"
+		},
+		hi: {
+			added: "✅ | %1 users ko admin role de diya gaya:\n%2",
+			alreadyAdmin: "\n⚠️ | %1 users ke paas pehle se admin role hai:\n%2",
+			missingIdAdd: "⚠️ | Admin role dene ke liye ID dalein ya user ko tag karein",
+			removed: "✅ | %1 users ka admin role hata diya gaya:\n%2",
+			notAdmin: "⚠️ | %1 users ke paas admin role nahi hai:\n%2",
+			missingIdRemove: "⚠️ | Admin role hatane ke liye ID dalein ya user ko tag karein",
+			listAdmin: "👑 | Admins ki list:\n%1"
+		},
+		ar: {
+			added: "✅ | تمت إضافة دور المسؤول لـ %1 مستخدم:\n%2",
+			alreadyAdmin: "\n⚠️ | %1 مستخدم لديهم بالفعل دور المسؤول:\n%2",
+			missingIdAdd: "⚠️ | الرجاء إدخال ID أو وضع علامة على المستخدم لإضافة دور المسؤول",
+			removed: "✅ | تمت إزالة دور المسؤول من %1 مستخدم:\n%2",
+			notAdmin: "⚠️ | %1 مستخدم ليس لديهم دور المسؤول:\n%2",
+			missingIdRemove: "⚠️ | الرجاء إدخال ID أو وضع علامة على المستخدم لإزالة دور المسؤول",
+			listAdmin: "👑 | قائمة المسؤولين:\n%1"
+		},
+		bn: {
+			added: "✅ | %1 জন user কে admin role দেওয়া হয়েছে:\n%2",
+			alreadyAdmin: "\n⚠️ | %1 জন user এর আগে থেকেই admin role আছে:\n%2",
+			missingIdAdd: "⚠️ | Admin role দিতে ID দিন বা user কে tag করুন",
+			removed: "✅ | %1 জন user এর admin role সরানো হয়েছে:\n%2",
+			notAdmin: "⚠️ | %1 জন user এর admin role নেই:\n%2",
+			missingIdRemove: "⚠️ | Admin role সরাতে ID দিন বা user কে tag করুন",
+			listAdmin: "👑 | Admin তালিকা:\n%1"
 		}
 	},
 
