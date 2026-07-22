@@ -9,7 +9,7 @@ module.exports = {
 			vi: "Kick thành viên khỏi box chat",
 			en: "Kick member out of chat box"
 		},
-		category: "box chat",
+		category: "owner",
 		guide: {
 			vi: "   {pn} @tags: dùng để kick những người được tag",
 			en: "   {pn} @tags: use to kick members who are tagged"
@@ -22,6 +22,18 @@ module.exports = {
 		},
 		en: {
 			needAdmin: "Please add admin for bot before using this feature"
+		},
+		tl: {
+			needAdmin: "Mangyaring magdagdag ng admin para sa bot bago gamitin ang feature na ito"
+		},
+		hi: {
+			needAdmin: "Is feature ka upyog karne se pehle bot ke liye admin add karein"
+		},
+		ar: {
+			needAdmin: "الرجاء إضافة مسؤول للبوت قبل استخدام هذه الميزة"
+		},
+		bn: {
+			needAdmin: "এই ফিচার ব্যবহার করার আগে bot এ admin যোগ করুন"
 		}
 	},
 
