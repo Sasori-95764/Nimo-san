@@ -58,6 +58,42 @@ module.exports = {
 			noChangeRole: "❗ Can't change role of command \"%1\"",
 			resetRole: "Reset role of command \"%1\" to default",
 			changedRole: "Changed role of command \"%1\" to %2"
+		},
+		tl: {
+			noEditedCommand: "✅ Walang na-edit na command ang iyong grupo",
+			editedCommand: "⚠️ Ang iyong grupo ay may na-edit na mga command:\n",
+			noPermission: "❗ Ang admin lamang ang maaaring gumamit ng command na ito",
+			commandNotFound: "Hindi nahanap ang command na \"%1\"",
+			noChangeRole: "❗ Hindi maaaring baguhin ang role ng command na \"%1\"",
+			resetRole: "Na-reset ang role ng command na \"%1\" sa default",
+			changedRole: "Binago ang role ng command na \"%1\" sa %2"
+		},
+		hi: {
+			noEditedCommand: "✅ Aapke group mein koi edited command nahi hai",
+			editedCommand: "⚠️ Aapke group mein edited commands hain:\n",
+			noPermission: "❗ Sirf admin hi ye command use kar sakta hai",
+			commandNotFound: "Command \"%1\" nahi mila",
+			noChangeRole: "❗ Command \"%1\" ka role nahi badla ja sakta",
+			resetRole: "Command \"%1\" ka role default par reset kar diya gaya",
+			changedRole: "Command \"%1\" ka role %2 kar diya gaya"
+		},
+		ar: {
+			noEditedCommand: "✅ مجموعتك ليس لديها أوامر معدّلة",
+			editedCommand: "⚠️ مجموعتك لديها أوامر معدّلة:\n",
+			noPermission: "❗ فقط المسؤول يمكنه استخدام هذا الأمر",
+			commandNotFound: "لم يتم العثور على الأمر \"%1\"",
+			noChangeRole: "❗ لا يمكن تغيير دور الأمر \"%1\"",
+			resetRole: "تمت إعادة تعيين دور الأمر \"%1\" إلى الافتراضي",
+			changedRole: "تم تغيير دور الأمر \"%1\" إلى %2"
+		},
+		bn: {
+			noEditedCommand: "✅ আপনার গ্রুপে কোনো edited command নেই",
+			editedCommand: "⚠️ আপনার গ্রুপে edited commands আছে:\n",
+			noPermission: "❗ শুধুমাত্র admin এই command ব্যবহার করতে পারবে",
+			commandNotFound: "Command \"%1\" পাওয়া যায়নি",
+			noChangeRole: "❗ Command \"%1\" এর role পরিবর্তন করা যাবে না",
+			resetRole: "Command \"%1\" এর role default এ রিসেট করা হয়েছে",
+			changedRole: "Command \"%1\" এর role %2 করা হয়েছে"
 		}
 	},
 

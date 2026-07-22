@@ -36,6 +36,30 @@ module.exports = {
 			setLangForCurrent: "Set default language for current chat: %1",
 			noPermission: "Only bot admin can use this command",
 			langNotFound: "Can't find language: %1"
+		},
+		tl: {
+			setLangForAll: "Itinakda ang default na wika ng bot sa: %1",
+			setLangForCurrent: "Itinakda ang default na wika para sa kasalukuyang chat: %1",
+			noPermission: "Ang admin ng bot lamang ang maaaring gumamit ng command na ito",
+			langNotFound: "Hindi mahanap ang wika: %1"
+		},
+		hi: {
+			setLangForAll: "Bot ki default language set kar di gayi: %1",
+			setLangForCurrent: "Is chat ki default language set kar di gayi: %1",
+			noPermission: "Sirf bot admin hi ye command use kar sakta hai",
+			langNotFound: "Language nahi mili: %1"
+		},
+		ar: {
+			setLangForAll: "تم تعيين اللغة الافتراضية للبوت إلى: %1",
+			setLangForCurrent: "تم تعيين اللغة الافتراضية للمحادثة الحالية: %1",
+			noPermission: "فقط مسؤول البوت يمكنه استخدام هذا الأمر",
+			langNotFound: "لا يمكن العثور على اللغة: %1"
+		},
+		bn: {
+			setLangForAll: "Bot এর default ভাষা সেট করা হয়েছে: %1",
+			setLangForCurrent: "এই chat এর default ভাষা সেট করা হয়েছে: %1",
+			noPermission: "শুধুমাত্র bot admin এই command ব্যবহার করতে পারবে",
+			langNotFound: "ভাষা খুঁজে পাওয়া যায়নি: %1"
 		}
 	},
 

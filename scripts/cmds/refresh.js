@@ -42,6 +42,46 @@ module.exports = {
 			refreshUserTargetSuccess: "✅ | Refresh information of user %1 successfully!",
 			errorRefreshMyUser: "❌ | Error when refresh information of your user",
 			errorRefreshUserTarget: "❌ | Error when refresh information of user %1"
+		},
+		tl: {
+			refreshMyThreadSuccess: "✅ | Matagumpay na na-refresh ang impormasyon ng iyong group chat!",
+			refreshThreadTargetSuccess: "✅ | Matagumpay na na-refresh ang impormasyon ng group chat %1!",
+			errorRefreshMyThread: "❌ | Error habang nire-refresh ang impormasyon ng iyong group chat",
+			errorRefreshThreadTarget: "❌ | Error habang nire-refresh ang impormasyon ng group chat %1",
+			refreshMyUserSuccess: "✅ | Matagumpay na na-refresh ang iyong impormasyon ng user!",
+			refreshUserTargetSuccess: "✅ | Matagumpay na na-refresh ang impormasyon ng user %1!",
+			errorRefreshMyUser: "❌ | Error habang nire-refresh ang iyong impormasyon ng user",
+			errorRefreshUserTarget: "❌ | Error habang nire-refresh ang impormasyon ng user %1"
+		},
+		hi: {
+			refreshMyThreadSuccess: "✅ | Aapke group chat ki jankari successfully refresh ho gayi!",
+			refreshThreadTargetSuccess: "✅ | Group chat %1 ki jankari successfully refresh ho gayi!",
+			errorRefreshMyThread: "❌ | Aapke group chat ki jankari refresh karne mein error aaya",
+			errorRefreshThreadTarget: "❌ | Group chat %1 ki jankari refresh karne mein error aaya",
+			refreshMyUserSuccess: "✅ | Aapki user jankari successfully refresh ho gayi!",
+			refreshUserTargetSuccess: "✅ | User %1 ki jankari successfully refresh ho gayi!",
+			errorRefreshMyUser: "❌ | Aapki user jankari refresh karne mein error aaya",
+			errorRefreshUserTarget: "❌ | User %1 ki jankari refresh karne mein error aaya"
+		},
+		ar: {
+			refreshMyThreadSuccess: "✅ | تم تحديث معلومات مجموعتك بنجاح!",
+			refreshThreadTargetSuccess: "✅ | تم تحديث معلومات المجموعة %1 بنجاح!",
+			errorRefreshMyThread: "❌ | خطأ أثناء تحديث معلومات مجموعتك",
+			errorRefreshThreadTarget: "❌ | خطأ أثناء تحديث معلومات المجموعة %1",
+			refreshMyUserSuccess: "✅ | تم تحديث معلومات مستخدمك بنجاح!",
+			refreshUserTargetSuccess: "✅ | تم تحديث معلومات المستخدم %1 بنجاح!",
+			errorRefreshMyUser: "❌ | خطأ أثناء تحديث معلومات مستخدمك",
+			errorRefreshUserTarget: "❌ | خطأ أثناء تحديث معلومات المستخدم %1"
+		},
+		bn: {
+			refreshMyThreadSuccess: "✅ | আপনার group chat এর তথ্য সফলভাবে refresh হয়েছে!",
+			refreshThreadTargetSuccess: "✅ | Group chat %1 এর তথ্য সফলভাবে refresh হয়েছে!",
+			errorRefreshMyThread: "❌ | আপনার group chat এর তথ্য refresh করতে error হয়েছে",
+			errorRefreshThreadTarget: "❌ | Group chat %1 এর তথ্য refresh করতে error হয়েছে",
+			refreshMyUserSuccess: "✅ | আপনার user তথ্য সফলভাবে refresh হয়েছে!",
+			refreshUserTargetSuccess: "✅ | User %1 এর তথ্য সফলভাবে refresh হয়েছে!",
+			errorRefreshMyUser: "❌ | আপনার user তথ্য refresh করতে error হয়েছে",
+			errorRefreshUserTarget: "❌ | User %1 এর তথ্য refresh করতে error হয়েছে"
 		}
 	},
 

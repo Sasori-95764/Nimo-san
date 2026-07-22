@@ -45,7 +45,43 @@ module.exports = {
 			confirmThisThread: "Please react to this message to confirm change prefix in your box chat",
 			successGlobal: "Changed prefix of system bot to: %1",
 			successThisThread: "Changed prefix in your box chat to: %1",
-			myPrefix: "🌐 System prefix: %1\n🛸 Your box chat prefix: %2"
+			myPrefix: "Hey senpai! ~_~\n🌐 Global prefix: %1\n🛸 Your group chat prefix: %2"
+		},
+		tl: {
+			reset: "Ang iyong prefix ay na-reset sa default: %1",
+			onlyAdmin: "Ang admin lamang ang maaaring magbago ng prefix ng system bot",
+			confirmGlobal: "Mangyaring mag-react sa mensaheng ito para kumpirmahin ang pagbabago ng prefix ng system bot",
+			confirmThisThread: "Mangyaring mag-react sa mensaheng ito para kumpirmahin ang pagbabago ng prefix sa iyong box chat",
+			successGlobal: "Binago ang prefix ng system bot sa: %1",
+			successThisThread: "Binago ang prefix sa iyong box chat sa: %1",
+			myPrefix: "Hey senpai! ~_~\n🌐 Global prefix: %1\n🛸 Prefix ng iyong group chat: %2"
+		},
+		hi: {
+			reset: "Aapka prefix default par reset kar diya gaya: %1",
+			onlyAdmin: "Sirf admin hi system bot ka prefix badal sakta hai",
+			confirmGlobal: "System bot ka prefix badlne ki pushthi ke liye is message par react karein",
+			confirmThisThread: "Aapke box chat mein prefix badlne ki pushthi ke liye is message par react karein",
+			successGlobal: "System bot ka prefix badal diya gaya: %1",
+			successThisThread: "Aapke box chat ka prefix badal diya gaya: %1",
+			myPrefix: "Hey senpai! ~_~\n🌐 Global prefix: %1\n🛸 Aapke group chat ka prefix: %2"
+		},
+		ar: {
+			reset: "تمت إعادة تعيين بادئتك إلى الافتراضي: %1",
+			onlyAdmin: "فقط المسؤول يمكنه تغيير بادئة بوت النظام",
+			confirmGlobal: "الرجاء التفاعل مع هذه الرسالة لتأكيد تغيير بادئة بوت النظام",
+			confirmThisThread: "الرجاء التفاعل مع هذه الرسالة لتأكيد تغيير البادئة في محادثتك",
+			successGlobal: "تم تغيير بادئة بوت النظام إلى: %1",
+			successThisThread: "تم تغيير البادئة في محادثتك إلى: %1",
+			myPrefix: "Hey senpai! ~_~\n🌐 البادئة العامة: %1\n🛸 بادئة مجموعتك: %2"
+		},
+		bn: {
+			reset: "আপনার prefix default এ রিসেট করা হয়েছে: %1",
+			onlyAdmin: "শুধুমাত্র admin system bot এর prefix পরিবর্তন করতে পারবে",
+			confirmGlobal: "System bot এর prefix পরিবর্তন নিশ্চিত করতে এই message এ react করুন",
+			confirmThisThread: "আপনার box chat এ prefix পরিবর্তন নিশ্চিত করতে এই message এ react করুন",
+			successGlobal: "System bot এর prefix পরিবর্তন হয়েছে: %1",
+			successThisThread: "আপনার box chat এর prefix পরিবর্তন হয়েছে: %1",
+			myPrefix: "Hey senpai! ~_~\n🌐 Global prefix: %1\n🛸 আপনার group chat prefix: %2"
 		}
 	},
 
