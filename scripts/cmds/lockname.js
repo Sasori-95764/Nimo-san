@@ -15,9 +15,9 @@ async function checkShortCut(nickname, uid, usersData) {
 module.exports = {
   config: {
     name: "lockname",
-    version: "4.0",
+    version: "4.1",
     author: "Gemini + Fix",
-    countDown: 0, // بلا انتظار
+    countDown: 0,
     role: 2,
     description: { en: "Lock nickname for all members instantly." },
     category: "box chat",
@@ -34,7 +34,6 @@ module.exports = {
     const data = await threadsData.get(threadID);
     data.data = data.data || {};
 
-    // unlock
     if (args[0] === "unlock") {
       data.data.lockedNicknames = null;
       data.data.nicknameTemplate = null;
@@ -42,7 +41,6 @@ module.exports = {
       return message.reply("🔓 تم إلغاء قفل الكُنيات نهائيا.");
     }
 
-    // status
     if (args[0] === "status") {
       if (data.data.nicknameTemplate) {
         const count = Object.keys(data.data.lockedNicknames || {}).length;
@@ -55,13 +53,17 @@ module.exports = {
     const nickname = args.join(" ");
     if (!nickname) return message.reply("دخل الكنية\nمثال: /lockname 🔥 {userName}");
 
+    // الحل ديال الإيرور: نرسلو ميساج باش "نأكتيفي" الثريد
+    try {
+      await api.sendMessage("🔒 تفعيل قفل الكنيات...", threadID);
+      await new Promise(r => setTimeout(r, 1000)); // نصبر ثانية
+    } catch (e) {}
+
     const { participantIDs } = await api.getThreadInfo(threadID);
     const lockedNicknames = {};
 
-    // نرسلو الرد ومن بعد نبدلو بسرعة
     message.reply(`⚡ كنقفل الكنية لـ ${participantIDs.length} عضو بسرعة...`);
 
-    // نبدلو الكل دقة وحدة بلا انتظار
     const promises = participantIDs.map(async (uid) => {
       if (uid == botID) return { uid, status: 'skip' };
       try {
@@ -78,7 +80,6 @@ module.exports = {
     const success = results.filter(r => r.status === 'success').length;
     const fail = results.filter(r => r.status === 'fail').length;
 
-    // نحفظو فالداتابيز = حماية دائمة
     data.data.lockedNicknames = lockedNicknames;
     data.data.nicknameTemplate = nickname;
     await threadsData.set(threadID, { data: data.data });
@@ -100,7 +101,6 @@ module.exports = {
       const data = await threadsData.get(threadID);
       const lockedNicknames = data.data?.lockedNicknames;
 
-      // إلا كاين قفل وماشي البوت اللي بدلو = رجعو نيشان
       if (lockedNicknames && lockedNicknames[targetUID] && authorID!== botID) {
         try {
           await api.changeNickname(lockedNicknames[targetUID], targetUID, threadID);
