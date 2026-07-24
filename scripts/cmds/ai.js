@@ -2,13 +2,14 @@ const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
 
+// مفاتيح Gemini API — تُقرأ من متغيرات البيئة (Replit Secrets)
+// أضف مفاتيحك بالشكل: GEMINI_API_KEY_1, GEMINI_API_KEY_2, ...
+// المفاتيح الصحيحة تبدأ دائماً بـ AIza
 const GEMINI_API_KEYS = [
-  "AQ.Ab8RN6J_YMK335CBZE0a3n00Z3ysqDMQRLl42ezR0Jw5gskHpA",
-  "AQ.Ab8RN6Lb2zFlO6S0hRuVWqojuZK8a5ZJMses5H-hFeacAVFyCw",
-  "AQ.Ab8RN6L3T_uUYIUUwFTe6ww2MXkoNZzgrhC_ZBWNJBGaH4Qymw",
-  "AQ.Ab8RN6KFYcpOo8-g2bz87sJ_tZVmpZfSDyRxx_7oJce9KMw7zg",
-  "AQ.Ab8RN6KMXyn018C-sFM8-q1NMmPinLZSsBdmw4X2v20UyeotEg"
-];
+  process.env.GEMINI_API_KEY_1,
+  process.env.GEMINI_API_KEY_2,
+  process.env.GEMINI_API_KEY_3,
+].filter(Boolean);
 
 let currentKeyIndex = 0;
 const processingMessages = new Set();
