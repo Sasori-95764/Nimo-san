@@ -4,30 +4,36 @@ const fs = require("fs");
 module.exports = {
     config: {
         name: 'gptgo',
-        version: '4.0.0',
-        author: 'KENLIEPLAYS + Upgraded',
+        version: '4.1.0',
+        author: 'KENLIEPLAYS + Fixed',
         countDown: 3,
         role: 0,
-        shortDescription: 'GPT مع ذاكرة ورد تلقائي',
+        shortDescription: 'GPT مع ذاكرة ورد تلقائي - 3 APIs',
         longDescription: {
-            ar: 'GPTGO مطور - ذاكرة لكل مستخدم + رد تلقائي + أوامر'
+            ar: 'GPTGO مطور - ذاكرة لكل مستخدم + 3 سيرفرات احتياط'
         },
         category: 'ai',
         guide: {
-            ar: ' gpt <سؤال> - سول البوت\n {pn} clear - مسح الذاكرة\n {pn} memory - شوف الذاكرة'
+            ar: ' gpt <سؤال> - سول البوت\n {pn} clear - مسح الذاكرة\n {pn} memory - شوف الذاكرة\n {pn} debug - شوف حالة API'
         }
     },
     langs: {
         ar: {
             chatting: '⏳ كنفكر...',
-            error: '❌ وقع خطأ، عاود جرب',
+            error: '❌ وقع خطأ: ',
             cleared: '✅ مسحت الذاكرة ديالك',
-            noMemory: '❌ ما عندك حتى ذاكرة'
+            noMemory: '❌ ما عندك حتى ذاكرة',
+            apiDown: '❌ جميع السيرفرات طايحة جرب من بعد'
         }
     },
 
     onStart: async function ({ args, message, event, getLang, usersData }) {
         const senderID = event.senderID;
+
+        // أمر debug
+        if (args[0] == "debug") {
+            return message.reply("🔧 كنجرب السيرفرات...\n" + await testAPIs());
+        }
 
         // أمر مسح الذاكرة
         if (args[0] == "clear" || args[0] == "مسح") {
@@ -41,7 +47,7 @@ module.exports = {
             if (!global.gptMemory ||!global.gptMemory[senderID] || global.gptMemory[senderID].length == 0) {
                 return message.reply(getLang("noMemory"));
             }
-            const memory = global.gptMemory[senderID].slice(-5); // آخر 5 رسائل
+            const memory = global.gptMemory[senderID].slice(-5);
             let msg = "🧠 الذاكرة ديالك:\n\n";
             memory.forEach((m, i) => {
                 msg += `${i+1}. أنت: ${m.user}\n البوت: ${m.bot.slice(0, 50)}...\n\n`;
@@ -57,11 +63,11 @@ module.exports = {
                 const responseMessage = await getMessage(yourMessage, senderID);
                 return message.reply(`${responseMessage}`);
             } catch (err) {
-                console.log(err)
-                return message.reply(getLang("error"));
+                console.log("Error:", err.message);
+                return message.reply(getLang("error") + err.message);
             }
         } else {
-            return message.reply("كتب gpt + السؤال ديالك\n.gptgo clear - مسح الذاكرة\n.gptgo memory - شوف الذاكرة");
+            return message.reply("كتب gpt + السؤال ديالك\n.gptgo clear - مسح الذاكرة\n.gptgo memory - شوف الذاكرة\n.gptgo debug - فحص السيرفرات");
         }
     },
 
@@ -69,7 +75,6 @@ module.exports = {
         const body = event.body.toLowerCase();
         const senderID = event.senderID;
 
-        // رد تلقائي إلا كتب gpt
         if (body.startsWith("gpt ")) {
             const question = event.body.slice(4).trim();
 
@@ -84,13 +89,12 @@ module.exports = {
                 message.reaction("✅", event.messageID);
                 return message.reply(`${responseMessage}`);
             } catch (err) {
-                console.log(err);
+                console.log("Chat Error:", err.message);
                 message.reaction("❌", event.messageID);
-                return message.reply(getLang("error"));
+                return message.reply(getLang("error") + err.message);
             }
         }
 
-        // رد تلقائي على "بوت"
         if (body == "بوت" || body == "gpt") {
             const replies = [
                 "نعام أسيدي؟ كتب gpt + سؤالك 💀",
@@ -102,57 +106,94 @@ module.exports = {
     }
 };
 
-// دالة جلب الجواب مع الذاكرة
+// 3 APIs احتياطية
+const APIS = [
+    "https://api.kenliejugarap.com/gptgo/?text=",
+    "https://hercai.onrender.com/v3/hercai?question=",
+    "https://api.rosalynbot.xyz/gpt4?text="
+];
+
 async function getMessage(yourMessage, senderID, userName = "المستخدم") {
-    try {
-        // تهيئة الذاكرة
-        if (!global.gptMemory) global.gptMemory = {};
-        if (!global.gptMemory[senderID]) global.gptMemory[senderID] = [];
+    // تهيئة الذاكرة
+    if (!global.gptMemory) global.gptMemory = {};
+    if (!global.gptMemory[senderID]) global.gptMemory[senderID] = [];
 
-        // جيب آخر 5 محادثات للسياق
-        const history = global.gptMemory[senderID].slice(-5);
-        let context = "";
-        if (history.length > 0) {
-            context = "المحادثات السابقة:\n";
-            history.forEach(h => {
-                context += `المستخدم: ${h.user}\nالبوت: ${h.bot}\n`;
-            });
-            context += "\n";
-        }
-
-        // صيفط للـ API مع السياق
-        const fullPrompt = context + `المستخدم ${userName}: ${yourMessage}`;
-        const res = await axios.get(`https://api.kenliejugarap.com/gptgo/?text=${encodeURIComponent(fullPrompt)}`);
-
-        if (!res.data.response) {
-            throw new Error('No response from API');
-        }
-
-        const botReply = res.data.response;
-
-        // حفظ فالذاكرة
-        global.gptMemory[senderID].push({
-            user: yourMessage,
-            bot: botReply,
-            time: Date.now()
+    // جيب آخر 3 محادثات للسياق فقط
+    const history = global.gptMemory[senderID].slice(-3);
+    let context = "";
+    if (history.length > 0) {
+        context = "سياق سابق: ";
+        history.forEach(h => {
+            context += `${h.user} → ${h.bot.slice(0, 30)}... `;
         });
-
-        // إلا فات 20 رسالة مسح القدام
-        if (global.gptMemory[senderID].length > 20) {
-            global.gptMemory[senderID].shift();
-        }
-
-        // حفظ فملف - اختياري
-        saveToFile(senderID, yourMessage, botReply);
-
-        return botReply;
-    } catch (err) {
-        console.error('Error while getting a message:', err);
-        throw err;
     }
+
+    const fullPrompt = context + yourMessage;
+
+    // جرب 3 APIs بالترتيب
+    for (let i = 0; i < APIS.length; i++) {
+        try {
+            const apiUrl = APIS[i] + encodeURIComponent(fullPrompt);
+            console.log(`[GPT] Trying API ${i+1}: ${APIS[i]}`);
+
+            const res = await axios.get(apiUrl, { timeout: 15000 }); // 15 ثانية timeout
+
+            let botReply = "";
+
+            // Kenlie API
+            if (i == 0 && res.data.response) {
+                botReply = res.data.response;
+            }
+            // Hercai API
+            else if (i == 1 && res.data.reply) {
+                botReply = res.data.reply;
+            }
+            // Rosalyn API
+            else if (i == 2 && res.data.gpt4) {
+                botReply = res.data.gpt4;
+            }
+
+            if (botReply) {
+                // حفظ فالذاكرة
+                global.gptMemory[senderID].push({
+                    user: yourMessage,
+                    bot: botReply,
+                    time: Date.now()
+                });
+
+                if (global.gptMemory[senderID].length > 20) {
+                    global.gptMemory[senderID].shift();
+                }
+
+                saveToFile(senderID, yourMessage, botReply);
+                return `🤖 API ${i+1}:\n${botReply}`;
+            }
+
+        } catch (err) {
+            console.log(`[GPT] API ${i+1} failed:`, err.message);
+            if (i == APIS.length - 1) {
+                throw new Error("جميع السيرفرات طايحة");
+            }
+            continue; // جرب API الجاي
+        }
+    }
+    throw new Error("ما قدرتش نجاوب");
 }
 
-// دالة حفظ السجل فملف
+// فحص APIs
+async function testAPIs() {
+    let result = "";
+    for (let i = 0; i < APIS.length; i++) {
+        try {
+            const res = await axios.get(APIS[i] + "hi", { timeout: 5000 });
+            result += `API ${i+1}: ✅ خدام\n`;
+        } catch (e) {
+            result += `API ${i+1}: ❌ طايح\n`;
+        }
+    }
+    return result;
+}
+
 function saveToFile(userID, question, answer) {
     try {
         if (!fs.existsSync("./gpt_logs")) {
