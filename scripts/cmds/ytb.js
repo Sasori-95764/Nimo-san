@@ -10,9 +10,9 @@ const baseApiUrl = async () => {
 
 module.exports = {
 	config: {
-		name: "يوتيوب",
+		name: "ytb",
 		version: "1.1.5",
-		aliases: ['يوتيوب'],
+		aliases: ['youtube'],
 		author: "dipto",
 		countDown: 5,
 		role: 0,
