@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+// مسار الذاكرة المباشر لضمان عدم ضياع أي بيانات
 const dbPath = path.join(__dirname, '../events/security_memory.json');
 
 module.exports = {
@@ -12,33 +13,43 @@ module.exports = {
     description: "تفعيل أو إيقاف نظام الحماية الخارق",
     commandCategory: "Admin",
     usages: "[on/off]",
-    cooldowns: 0
+    cooldowns: 5
   },
 
   run: async function({ api, event, args }) {
     const { threadID, senderID } = event;
-    const botAdminID = "61591869455750";
+    const botAdminID = "61591869455750"; // معرف المطور الحصري ديالتك
 
     if (senderID !== botAdminID) {
       return api.sendMessage("❌ هذا الأمر خاص بمطور البوت الحصري فقط!", threadID);
     }
 
+    // التأكد من وجود مجلد events و ملف الذاكرة أو إنشائهما تلقائياً
+    const eventsDir = path.join(__dirname, '../events');
+    if (!fs.existsSync(eventsDir)) {
+      fs.mkdirSync(eventsDir, { recursive: true });
+    }
+
     let memory = { globalProtection: true, lockedName: "" };
     if (fs.existsSync(dbPath)) {
-      try { memory = JSON.parse(fs.readFileSync(dbPath, 'utf8')); } catch(e) {}
+      try {
+        memory = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+      } catch (e) {}
     }
 
     const action = args[0] ? args[0].toLowerCase() : "";
 
     if (action === "on") {
       memory.globalProtection = true;
-      fs.writeFileSync(dbPath, JSON.stringify(memory, null, 2));
+      fs.writeFileSync(dbPath, JSON.stringify(memory, null, 2), 'utf8');
       return api.sendMessage("🧠 [AI SECURITY]: تم تفعيل الحماية الشاملة للأبد بنجاح!", threadID);
-    } else if (action === "off") {
+    } 
+    else if (action === "off") {
       memory.globalProtection = false;
-      fs.writeFileSync(dbPath, JSON.stringify(memory, null, 2));
+      fs.writeFileSync(dbPath, JSON.stringify(memory, null, 2), 'utf8');
       return api.sendMessage("⚠️ [AI SECURITY]: تم إيقاف الحماية.", threadID);
-    } else {
+    } 
+    else {
       return api.sendMessage("⚙️ استخدم الأمر هكذا:\n• `antiai on` لتفعيل الحماية للأبد.\n• `antiai off` لإيقافها.", threadID);
     }
   }
