@@ -1,127 +1,71 @@
 module.exports = {
   config: {
     name: "help",
-    aliases: ["menu", "commands", "قائمة", "أوامر"],
-    version: "7.0",
-    author: "EryXenX",
-    countDown: 3,
+    version: "1.0",
+    author: "Xemon",
+    countDown: 5,
     role: 0,
-    shortDescription: "عرض جميع الأوامر",
-    longDescription: "عرض قائمة الأوامر المتاحة مع تصنيفها",
-    category: "system",
-    guide: "{pn} [اسم الأمر]"
+    description: "قائمة الأوامر مع تأخير",
+    category: "نظام",
+    guide: "{pn} [رقم الصفحة]"
   },
 
-  onStart: async function ({ message, args, prefix }) {
-    const allCommands = global.GoatBot.commands;
+  onStart: async function({ message, event, api, args, prefix }) {
 
-    const categoryEmojis = {
-      system:    "⚙️",
-      economy:   "💰",
-      moderation:"🛡️",
-      fun:       "🎮",
-      "ai":      "🤖",
-      "ai-image":"🖼️",
-      "AI-IMAGE":"🖼️",
-      anime:     "🎌",
-      "box chat":"💬",
-      tools:     "🔧",
-      utility:   "🌐",
-      info:      "ℹ️",
-      image:     "📸",
-      events:    "📅",
-      others:    "📁"
-    };
+    // 1. خلي البوت يبان كايكتب
+    api.sendTypingIndicator(event.threadID);
 
-    const categoryAr = {
-      system:    "نظام",
-      economy:   "اقتصاد",
-      moderation:"إشراف",
-      fun:       "مرح",
-      "ai":      "ذكاء اصطناعي",
-      "ai-image":"صور AI",
-      "AI-IMAGE":"صور AI",
-      anime:     "أنمي",
-      "box chat":"دردشة",
-      tools:     "أدوات",
-      utility:   "مساعد",
-      info:      "معلومات",
-      image:     "صور",
-      events:    "أحداث",
-      others:    "أخرى"
-    };
+    // 2. تجهيز الرسالة
+    const page = parseInt(args[0]) || 1;
+    const perPage = 2;
 
-    // ─── Single command info ───────────────────────────────────────────
-    if (args[0]) {
-      const cmdName = args[0].toLowerCase();
-      const cmd =
-        allCommands.get(cmdName) ||
-        [...allCommands.values()].find(c => c.config.aliases?.includes(cmdName));
+    const allCommands = [
+      {
+        category: "〘 الـنـظـام ⚙️ 〙",
+        cmds: [
+          { name: "help", desc: "عـرض شـرح الاوامـر" },
+          { name: "restart", desc: "اعـادة تـشـغـيـل الـبـوت" }
+        ]
+      },
+      {
+        category: "〘 الـذكـاء - الاصـطـنـاعـي 🤖 〙",
+        cmds: [
+          { name: "gpt", desc: "دردشـة مـع الـذكـاء الاصـطـنـاعـي" },
+          { name: "gemini", desc: "الـرد بـاسـتـخـدام Gemini AI" }
+        ]
+      }
+      // زيد باقي الفئات هنا...
+    ];
 
-      if (!cmd)
-        return message.reply(
-`❌ الأمر "${cmdName}" غير موجود
-➤ اكتب ${prefix}help لرؤية القائمة الكاملة`
-        );
+    const totalPages = Math.ceil(allCommands.length / perPage);
+    if (page > totalPages) return message.reply(`كاين ${totalPages} صفحات فقط`);
 
-      const guide = typeof cmd.config.guide === "string"
-        ? cmd.config.guide.replace(/\{pn\}|\{p\}/g, prefix + cmd.config.name)
-        : typeof cmd.config.guide === "object"
-          ? (cmd.config.guide.ar || cmd.config.guide.en || cmd.config.name)
-          : cmd.config.name;
+    const start = (page - 1) * perPage;
+    const pageData = allCommands.slice(start, start + perPage);
 
-      const desc = cmd.config.shortDescription
-        || (typeof cmd.config.description === "object" ? cmd.config.description.en : cmd.config.description)
-        || cmd.config.longDescription
-        || "لا يوجد وصف";
+    let msg = `❀━━━━━━━━━━━━━━❀\n🇲🇦 𝑵𝑶𝑳𝑨𝑵 𝑪𝑯𝑨𝑻𝑩𝑶𝑻 🇲🇦\n❀━━━━━━━━━━━━━━❀\n`;
+    msg += `📄 صفحة ${page}/${totalPages} | 🔧 البادئة: ${prefix}\n`;
 
-      return message.reply(
-`┌──────────────────┐
-│   🧩 معلومات الأمر   │
-└──────────────────┘
-✦ الاسم     : ${cmd.config.name}
-✦ الأسماء المختصرة : ${cmd.config.aliases?.join(", ") || "لا يوجد"}
-✦ الفئة    : ${categoryAr[cmd.config.category?.toLowerCase()] || cmd.config.category || "أخرى"}
-✦ الإصدار  : v${cmd.config.version || "1.0"}
-✦ المطور   : ${cmd.config.author || "غير معروف"}
-✦ الاستخدام : ${guide}
-──────────────────────
-📝 ${desc}`
-      );
+    for (const cat of pageData) {
+      msg += `╭───────────❃\n│${cat.category}\n╭─────❤─❤─────❃\n`;
+      for (const cmd of cat.cmds) {
+        msg += `🔹 ${prefix}${cmd.name} → ${cmd.desc}\n`;
+      }
+      msg += `╰──────❤─❤──────❍\n`;
     }
+    msg += `╭────────────❃\n│ اكتب ${prefix}help ${page + 1} للصفحة التالية\n╰──────────❃`;
+    msg += `\n⏳ غادي تمسح هاد الرسالة تلقائيا بعد 30 ثانية`;
 
-    // ─── Full command list ─────────────────────────────────────────────
-    const categories = {};
-    for (const [name, cmd] of allCommands) {
-      const cat = (cmd.config.category || "others").toLowerCase();
-      if (!categories[cat]) categories[cat] = [];
-      categories[cat].push(name);
-    }
+    // 3. تسنا 5 ثواني عاد صيفط - هادي اللي طلبتي
+    await new Promise(r => setTimeout(r, 5000)); // 5000 = 5 ثواني
 
-    // Sort categories: put system first, then alphabetical
-    const sortedCats = Object.keys(categories).sort((a, b) => {
-      if (a === "system") return -1;
-      if (b === "system") return 1;
-      return a.localeCompare(b);
-    });
+    // 4. صيفط الرسالة
+    const info = await message.reply(msg);
 
-    let msg =
-`┌──────────────────────┐
-│   📜 قائمة الأوامر   │
-└──────────────────────┘
-🔧 البادئة: ${prefix}  |  📊 ${allCommands.size} أمر
-──────────────────────────\n`;
+    // 5. حذف تلقائي بعد 30 ثانية
+    setTimeout(() => {
+      api.unsendMessage(info.messageID);
+    }, 30000);
 
-    for (const cat of sortedCats) {
-      const emoji = categoryEmojis[cat] || "📁";
-      const label = categoryAr[cat] || cat;
-      const cmds  = categories[cat].sort();
-      msg += `\n${emoji} 『 ${label} 』 — ${cmds.length} أمر\n`;
-      msg += cmds.map(c => `   ➥ ${c}`).join("\n") + "\n";
-    }
-
-    msg += `\n──────────────────────────\n✨ اكتب ${prefix}help <اسم الأمر> لمزيد من التفاصيل`;
-
-    return message.reply(msg);
   }
 };
