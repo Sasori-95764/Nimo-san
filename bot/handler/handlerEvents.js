@@ -82,30 +82,13 @@ function isBannedOrOnlyAdmin(userData, threadData, senderID, threadID, isGroup, 
 		return true;
 	}
 
-	// check if only admin bot
-	if (
-		config.adminOnly.enable == true
-		&& !adminBot.includes(senderID)
-		&& !config.adminOnly.ignoreCommand.includes(commandName)
-	) {
-		if (hideNotiMessage.adminOnly == false)
-			message.reply(getText("onlyAdminBot", null, null, null, lang));
+	// جعل البوت يرد على أدمن البوت فقط ويصمت تماماً مع أي شخص آخر بدون أي رد
+	if (!adminBot.includes(senderID)) {
 		return true;
 	}
 
 	// ==========    Check Thread    ========== //
 	if (isGroup == true) {
-		if (
-			threadData.data.onlyAdminBox === true
-			&& !threadData.adminIDs.includes(senderID)
-			&& !(threadData.data.ignoreCommanToOnlyAdminBox || []).includes(commandName)
-		) {
-			// check if only admin box
-			if (!threadData.data.hideNotiMessageOnlyAdminBox)
-				message.reply(getText("onlyAdminBox", null, null, null, lang));
-			return true;
-		}
-
 		// check if thread banned
 		const infoBannedThread = threadData.banned;
 		if (infoBannedThread.status == true) {
