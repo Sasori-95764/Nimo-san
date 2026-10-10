@@ -1,38 +1,29 @@
+global.groupNameProtection = global.groupNameProtection || {};
+
 module.exports = {
   config: {
     name: "locktitle",
-    version: "2.0",
+    version: "1.3",
     author: "Gemini",
     countDown: 5,
-    role: 2, // غير أدمن البوت
-    description: { en: "Lock group name forever. Bot admin only." },
+    role: 2,
+    description: {
+      en: "Change and lock group name. Bot admin only."
+    },
     category: "box chat",
     guide: {
       en: {
-        body: "{pn} <الاسم الجديد>\nمثال: {pn} اهلا بكم\n\n{pn} unlock : لإلغاء القفل\n{pn} status : تشوف واش خدام"
+        body: "{pn} <الاسم الجديد>\nمثال: {pn} اهلا بكم في المجموعة\n\n{pn} unlock : لإلغاء القفل"
       }
     }
   },
 
-  onStart: async function ({ args, message, event, api, threadsData }) {
+  onStart: async function ({ args, message, event, api }) {
     const threadID = event.threadID;
-    const data = await threadsData.get(threadID);
-    const threadData = data.data || {};
 
-    // إلغاء القفل
     if (args[0] === "unlock") {
-      threadData.lockedTitle = null;
-      await threadsData.set(threadID, { data: threadData });
-      return message.reply("🔓 تم إلغاء قفل اسم المجموعة نهائيا.");
-    }
-
-    // تشوف الحالة
-    if (args[0] === "status") {
-      if (threadData.lockedTitle) {
-        return message.reply(`🔒 الحماية خدامة\nالاسم المقفول: "${threadData.lockedTitle}"`);
-      } else {
-        return message.reply("🔓 ما كاينش قفل دابا");
-      }
+      delete global.groupNameProtection[threadID];
+      return message.reply("🔓 تم إلغاء قفل اسم المجموعة.");
     }
 
     const newTitle = args.join(" ");
@@ -40,35 +31,29 @@ module.exports = {
 
     try {
       await api.setTitle(newTitle, threadID);
-
-      // حفظ فالداتابيز - كيبقا ديما حتى تحيدو نتا
-      threadData.lockedTitle = newTitle;
-      await threadsData.set(threadID, { data: threadData });
-
-      return message.reply(`🔒 تم قفل اسم المجموعة نهائيا على:\n"${newTitle}"\n\nدابا البوت غادي يرجعو نيشان إلا تبدل، حتى بعد 100 ريستارت.`);
+      global.groupNameProtection[threadID] = newTitle;
+      return message.reply(`🔒 تم تغيير وقفل اسم المجموعة إلى:\n"${newTitle}"\n\nدابا إلا شي واحد بدلو البوت غادي يرجعو بعد 5 ثواني.`);
     } catch (e) {
-      return message.reply("❌ ما قدرتش نبدل الاسم. تأكد واش البوت أدمن.");
+      return message.reply("❌ ما قدرتش نبدل الاسم. جرب مرة أخرى.");
     }
   },
 
-  onEvent: async function ({ event, api, threadsData }) {
+  onEvent: async function ({ event, api }) {
     if (event.logMessageType === "log:thread-name") {
       const threadID = event.threadID;
       const authorID = event.author;
       const botID = api.getCurrentUserID();
 
-      const data = await threadsData.get(threadID);
-      const lockedTitle = data.data?.lockedTitle;
+      if (global.groupNameProtection[threadID] && authorID !== botID) {
+        const lockedTitle = global.groupNameProtection[threadID];
 
-      // إلا كاين قفل وماشي البوت اللي بدلو
-      if (lockedTitle && authorID!== botID) {
-        try {
-          await api.setTitle(lockedTitle, threadID);
-          // يمكن تزيد رسالة هنا إلا بغيتي
-          // api.sendMessage("⛔ الاسم مقفول، تم الإرجاع", threadID);
-        } catch (e) {
-          console.log(`[LOCKTITLE] Failed to revert name in ${threadID}`);
-        }
+        setTimeout(async () => {
+          try {
+            await api.setTitle(lockedTitle, threadID);
+          } catch (e) {
+            // ما قدرش يرجعو
+          }
+        }, 5000);
       }
     }
   }
