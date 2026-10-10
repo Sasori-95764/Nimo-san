@@ -4,90 +4,116 @@ const FIXED_DELAY = 15000; // 15 ثانية ثابتة
 module.exports = {
   config: {
     name: "botnick",
-    aliases: ["bn"],
-    version: "3.3",
+    aliases: ["bn", "lockbotnick"],
+    version: "5.0",
     author: "TOJI",
     countDown: 0,
-    role: 1, // متاح لمشرفي الكروب لتسهيل الاستخدام
-    shortDescription: "حماية كنية البوت",
-    guide: "{pn} on [كنية جديدة] - {pn} off - {pn}"
+    role: 2, // مخصص لأدمن البوت الأساسيين فقط
+    shortDescription: "حماية وتثبيت كنية البوت تلقائياً",
+    longDescription: "يفعل القفل تلقائياً عند دخول أي مجموعة جديدة، ويمكنك تخصيص أي كنية تريدها",
+    category: "box chat",
+    guide: "{pn} on [الكنية الجديدة] - {pn} off - {pn}"
   },
 
-  onStart: async function({ event, api, threadsData, message, args }) {
-    const threadID = event.threadID;
-    const botID = api.getCurrentUserID();
-    
-    let data = {};
+  onStart: async function({ api, event, args, threadsData }) {
     try {
-      const threadData = await threadsData.get(threadID);
-      data = threadData || {};
-    } catch (e) {
-      data = {};
-    }
+      const threadID = event.threadID;
+      const botID = api.getCurrentUserID();
+      const action = args[0] ? args[0].toLowerCase() : "";
 
-    data.data = data.data || {};
-    data.data.botLock = data.data.botLock || {};
+      let threadData = await threadsData.get(threadID) || {};
+      threadData.data = threadData.data || {};
+      threadData.data.botLock = threadData.data.botLock || {};
 
-    const action = args[0] ? args[0].toLowerCase() : "";
+      // إيقاف الحماية
+      if (action === "off") {
+        threadData.data.botLock.enabled = false;
+        await threadsData.set(threadID, threadData);
+        return api.sendMessage("✅ تم إيقاف حماية كنية البوت في هذه المجموعة.", threadID, event.messageID);
+      }
 
-    // إيقاف الحماية
-    if (action === "off") {
-      data.data.botLock.enabled = false;
-      await threadsData.set(threadID, { data: data.data });
-      return message.reply("✅ تم إيقاف حماية كنية البوت.");
-    }
+      // تفعيل وتغيير الكنية حسب ما يكتبه المطور
+      if (action === "on") {
+        const customNick = args.slice(1).join(" ").trim();
+        const targetNick = customNick !== "" ? customNick : DEFAULT_NICK;
 
-    // تفعيل وتغيير الكنية
-    if (action === "on") {
-      const newNick = args.slice(1).join(" ").trim() || DEFAULT_NICK;
-      data.data.botLock.enabled = true;
-      data.data.botLock.nick = newNick;
-      await threadsData.set(threadID, { data: data.data });
-      
-      try {
-        await api.changeNickname(newNick, threadID, botID);
-      } catch(e) {}
+        threadData.data.botLock.enabled = true;
+        threadData.data.botLock.nick = targetNick;
+        await threadsData.set(threadID, threadData);
 
-      return message.reply(`✅ تم قفل وتغيير كنية البوت إلى:\n${newNick}\n⏱️ وقت الحماية: 15 ثانية`);
-    }
-
-    // التشغيل الافتراضي
-    try {
-      data.data.botLock.enabled = true;
-      data.data.botLock.nick = DEFAULT_NICK;
-      await threadsData.set(threadID, { data: data.data });
-      
-      await api.changeNickname(DEFAULT_NICK, threadID, botID);
-      return message.reply(`✅ تم تفعيل حماية كنية البوت الافتراضية:\n${DEFAULT_NICK}\n⏱️ وقت الحماية: 15 ثانية`);
-    } catch(e) {
-      return message.reply("❌ تأكد من أن البوت يملك صلاحية تغيير الألقاب في المجموعة.");
-    }
-  },
-
-  onEvent: async function({ event, api, threadsData }) {
-    if (!event || !event.threadID) return;
-    const { threadID, logMessageType, logMessageData } = event;
-    const botID = api.getCurrentUserID();
-
-    if (logMessageType === "log:user-nickname") {
-      const targetID = logMessageData.participant_id;
-      if (targetID == botID) {
         try {
+          await api.changeNickname(targetNick, threadID, botID);
+        } catch (e) {}
+
+        return api.sendMessage(`✅ تم قفل وتغيير كنية البوت إلى:\n${targetNick}\n⏱️ وقت الحماية: 15 ثانية`, threadID, event.messageID);
+      }
+
+      // التشغيل اليدوي الافتراضي
+      threadData.data.botLock.enabled = true;
+      threadData.data.botLock.nick = DEFAULT_NICK;
+      await threadsData.set(threadID, threadData);
+
+      try {
+        await api.changeNickname(DEFAULT_NICK, threadID, botID);
+      } catch (e) {}
+
+      return api.sendMessage(`✅ تم تفعيل حماية كنية البوت الافتراضية:\n${DEFAULT_NICK}\n⏱️ وقت الحماية: 15 ثانية`, threadID, event.messageID);
+
+    } catch (err) {
+      console.error("Error in botnick:", err);
+      return api.sendMessage("❌ حدث خطأ أثناء تنفيذ أمر كنية البوت.", event.threadID, event.messageID);
+    }
+  },
+
+  onEvent: async function({ api, event, threadsData }) {
+    try {
+      if (!event || !event.threadID) return;
+      const { threadID, logMessageType, logMessageData } = event;
+      const botID = api.getCurrentUserID();
+
+      // 1. التفعيل التلقائي فور دخول البوت إلى مجموعة جديدة
+      if (logMessageType === "log:subscribe") {
+        const addedParticipants = logMessageData.addedParticipants || [];
+        const isBotAdded = addedParticipants.some(p => p.userFbId == botID || p.userFbId == String(botID));
+
+        if (isBotAdded) {
+          setTimeout(async () => {
+            try {
+              let threadData = await threadsData.get(threadID) || {};
+              threadData.data = threadData.data || {};
+              threadData.data.botLock = {
+                enabled: true,
+                nick: DEFAULT_NICK
+              };
+              await threadsData.set(threadID, threadData);
+
+              await api.changeNickname(DEFAULT_NICK, threadID, botID);
+              api.sendMessage(`🤖 مرحباً! تم تأمين وتثبيت كنيتي تلقائياً:\n${DEFAULT_NICK}`, threadID);
+            } catch (e) {}
+          }, 3000);
+        }
+      }
+
+      // 2. مراقبة تغيير الكنية وإعادتها بعد 15 ثانية
+      if (logMessageType === "log:user-nickname") {
+        const targetID = logMessageData.participant_id;
+        if (targetID == botID) {
           const threadData = await threadsData.get(threadID);
           const lock = threadData?.data?.botLock;
-          
+
           if (lock && lock.enabled === false) return;
-          
+
           const protectedNick = lock?.nick || DEFAULT_NICK;
-          
+
           setTimeout(async () => {
             try {
               await api.changeNickname(protectedNick, threadID, botID);
             } catch (e) {}
-          }, FIXED_DELAY); // إعادة الكنية بعد 15 ثانية تماماً
-          
-        } catch (e) {}
+          }, FIXED_DELAY);
+        }
       }
+    } catch (err) {
+      // تجاهل الأخطاء الصامتة في الخلفية لضمان استقرار السيرفر
     }
   }
 };
