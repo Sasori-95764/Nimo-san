@@ -15,15 +15,15 @@ async function checkShortCut(nickname, uid, usersData) {
 module.exports = {
   config: {
     name: "lockname",
-    version: "3.0",
+    version: "4.0",
     author: "Gemini + Fix",
-    countDown: 0, // سرعة البرق
+    countDown: 0,
     role: 2,
-    description: { en: "Lock nickname for all members with permanent protection." },
+    description: { en: "Change nicknames one by one with a 5-second delay and permanent protection." },
     category: "box chat",
     guide: {
       en: {
-        body: "{pn} <nickname>: قفل الكنية\n{pn} unlock: إلغاء القفل\n{pn} status: الحالة"
+        body: "{pn} <nickname>: تغيير كنيات الأعضاء واحد تلو الآخر بفاصل 5 ثوانٍ\n{pn} unlock: إلغاء القفل\n{pn} status: الحالة"
       }
     }
   },
@@ -38,7 +38,7 @@ module.exports = {
     if (args[0] === "unlock") {
       data.data.nickLock = null;
       await threadsData.set(threadID, { data: data.data });
-      return message.reply("🔓 تم إلغاء قفل الكُنيات نهائيا");
+      return message.reply("🔓 تم إلغاء القفل وحماية الكُنيات نهائيا.");
     }
 
     // الحالة
@@ -47,38 +47,35 @@ module.exports = {
         const count = Object.keys(data.data.nickLock.users || {}).length;
         return message.reply(`🔒 الحماية شغالة\nالقالب: ${data.data.nickLock.template}\nالمحميين: ${count}`);
       }
-      return message.reply("🔓 الحماية مطفية");
+      return message.reply("🔓 الحماية مطفية حالياً.");
     }
 
     const nickname = args.join(" ");
-    if (!nickname) return message.reply("دخل الكنية\nمثال: /lockname 🔥 {userName}");
+    if (!nickname) return message.reply("يرجى إدخال الكنية\nمثال: /lockname 🔥 {userName}");
 
     const { participantIDs } = await api.getThreadInfo(threadID);
-    const members = participantIDs.filter(id => id!= botID);
+    const members = participantIDs.filter(id => id !== botID);
 
-    await message.reply(`⚡ كنقفل لـ ${members.length} عضو بسرعة البرق...`);
-
-    // سرعة البرق: Promise.all دقة وحدة
-    const results = await Promise.all(members.map(async (uid) => {
-      try {
-        const finalName = await checkShortCut(nickname, uid, usersData);
-        await api.changeNickname(finalName, threadID, uid);
-        return { uid, nick: finalName, status: 'ok' };
-      } catch (e) {
-        return { uid, status: 'fail', error: e.error };
-      }
-    }));
+    await message.reply(`⏳ سيتم تغيير الكنيات لـ ${members.length} عضو (بين كل شخص والشخص الآخر 5 ثوانٍ)...`);
 
     const nickMap = {};
     let success = 0;
-    results.forEach(r => {
-      if (r.status === 'ok') {
-        nickMap[r.uid] = r.nick;
-        success++;
-      }
-    });
 
-    // حماية دائمة: نخزنو فـ threadsData
+    // تنفيذ التغيير واحد تلو الآخر مع تأخير 5 ثوانٍ بين كل عضو
+    for (const uid of members) {
+      try {
+        const finalName = await checkShortCut(nickname, uid, usersData);
+        await api.changeNickname(finalName, threadID, uid);
+        nickMap[uid] = finalName;
+        success++;
+        // الانتظار 5 ثوانٍ (5000 ميلي ثانية) قبل الانتقال للشخص التالي
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      } catch (e) {
+        // تجاهل الأخطاء البسيطة ومتابعة البقية
+      }
+    }
+
+    // حفظ القالب وقائمة الأعضاء لتفعيل الحماية الدائمة (أي شخص يغير كنيته يرجعها بعد 5 ثوانٍ)
     data.data.nickLock = {
       enabled: true,
       template: nickname,
@@ -87,26 +84,28 @@ module.exports = {
     };
     await threadsData.set(threadID, { data: data.data });
 
-    return message.reply(`✅ تم بسرعة البرق\n👥 نجح: ${success}/${members.length}\n🔒 حماية دائمة شغالة\nللإلغاء: /lockname unlock`);
+    return message.reply(`✅ انتهت العملية بنجاح\n👥 نجح: ${success}/${members.length}\n🔒 الحماية الدائمة مفعلة (أي تغيير يتم إرجاعه تلقائياً)\nللإلغاء: /lockname unlock`);
   },
 
   onEvent: async function ({ event, api, threadsData }) {
-    if (event.logMessageType!== "log:user-nickname") return;
+    if (event.logMessageType !== "log:user-nickname") return;
 
     const { threadID, author, logMessageData } = event;
     const targetUID = logMessageData.participant_id;
     const botID = api.getCurrentUserID();
 
-    if (author == botID) return; // إلا البوت هو اللي بدل
+    if (author == botID) return; // تجاهل إذا كان البوت هو من قام بالتغيير
 
     const data = await threadsData.get(threadID);
     const lock = data.data?.nickLock;
 
-    // الحماية الدائمة: نقراو من الداتابيز ماشي global
+    // إذا قام شخص بتغيير كنيته والميزة مفعلة، نقوم بإرجاعها بعد 5 ثوانٍ
     if (lock?.enabled && lock.users?.[targetUID]) {
-      try {
-        await api.changeNickname(lock.users[targetUID], threadID, targetUID);
-      } catch (e) {}
+      setTimeout(async () => {
+        try {
+          await api.changeNickname(lock.users[targetUID], threadID, targetUID);
+        } catch (e) {}
+      }, 5000);
     }
   }
 };
