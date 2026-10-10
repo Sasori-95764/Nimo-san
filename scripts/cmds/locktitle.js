@@ -3,7 +3,7 @@ global.groupNameProtection = global.groupNameProtection || {};
 module.exports = {
   config: {
     name: "locktitle",
-    version: "1.3",
+    version: "1.4",
     author: "Gemini",
     countDown: 5,
     role: 2,
@@ -32,7 +32,7 @@ module.exports = {
     try {
       await api.setTitle(newTitle, threadID);
       global.groupNameProtection[threadID] = newTitle;
-      return message.reply(`🔒 تم تغيير وقفل اسم المجموعة إلى:\n"${newTitle}"\n\nدابا إلا شي واحد بدلو البوت غادي يرجعو بعد 5 ثواني.`);
+      return message.reply(`🔒 تم تغيير وقفل اسم المجموعة إلى:\n"${newTitle}"\n\nدابا إلا شي واحد بدلو البوت غادي يرجعو بعد 15 ثانية.`);
     } catch (e) {
       return message.reply("❌ ما قدرتش نبدل الاسم. جرب مرة أخرى.");
     }
@@ -53,7 +53,7 @@ module.exports = {
           } catch (e) {
             // ما قدرش يرجعو
           }
-        }, 5000);
+        }, 15000); // تم التعديل إلى 15 ثانية لتفادي الحظر
       }
     }
   }
