@@ -15,15 +15,15 @@ async function checkShortCut(nickname, uid, usersData) {
 module.exports = {
   config: {
     name: "lockname",
-    version: "4.0",
+    version: "4.1",
     author: "Gemini + Fix",
     countDown: 0,
     role: 2,
-    description: { en: "Change nicknames one by one with a 5-second delay and permanent protection." },
+    description: { en: "Change nicknames one by one with a 10-second delay and permanent protection." },
     category: "box chat",
     guide: {
       en: {
-        body: "{pn} <nickname>: تغيير كنيات الأعضاء واحد تلو الآخر بفاصل 5 ثوانٍ\n{pn} unlock: إلغاء القفل\n{pn} status: الحالة"
+        body: "{pn} <nickname>: تغيير كنيات الأعضاء واحد تلو الآخر بفاصل 10 ثوانٍ\n{pn} unlock: إلغاء القفل\n{pn} status: الحالة"
       }
     }
   },
@@ -56,26 +56,26 @@ module.exports = {
     const { participantIDs } = await api.getThreadInfo(threadID);
     const members = participantIDs.filter(id => id !== botID);
 
-    await message.reply(`⏳ سيتم تغيير الكنيات لـ ${members.length} عضو (بين كل شخص والشخص الآخر 5 ثوانٍ)...`);
+    await message.reply(`⏳ سيتم تغيير الكنيات لـ ${members.length} عضو (بين كل شخص والشخص الآخر 10 ثوانٍ لتفادي الحظر)...`);
 
     const nickMap = {};
     let success = 0;
 
-    // تنفيذ التغيير واحد تلو الآخر مع تأخير 5 ثوانٍ بين كل عضو
+    // تنفيذ التغيير واحد تلو الآخر مع تأخير 10 ثوانٍ بين كل عضو
     for (const uid of members) {
       try {
         const finalName = await checkShortCut(nickname, uid, usersData);
         await api.changeNickname(finalName, threadID, uid);
         nickMap[uid] = finalName;
         success++;
-        // الانتظار 5 ثوانٍ (5000 ميلي ثانية) قبل الانتقال للشخص التالي
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        // الانتظار 10 ثوانٍ (10000 ميلي ثانية) قبل الانتقال للشخص التالي
+        await new Promise(resolve => setTimeout(resolve, 10000));
       } catch (e) {
         // تجاهل الأخطاء البسيطة ومتابعة البقية
       }
     }
 
-    // حفظ القالب وقائمة الأعضاء لتفعيل الحماية الدائمة (أي شخص يغير كنيته يرجعها بعد 5 ثوانٍ)
+    // حفظ القالب وقائمة الأعضاء لتفعيل الحماية الدائمة (أي شخص يغير كنيته يرجعها بعد 10 ثوانٍ)
     data.data.nickLock = {
       enabled: true,
       template: nickname,
@@ -84,7 +84,7 @@ module.exports = {
     };
     await threadsData.set(threadID, { data: data.data });
 
-    return message.reply(`✅ انتهت العملية بنجاح\n👥 نجح: ${success}/${members.length}\n🔒 الحماية الدائمة مفعلة (أي تغيير يتم إرجاعه تلقائياً)\nللإلغاء: /lockname unlock`);
+    return message.reply(`✅ انتهت العملية بنجاح\n👥 نجح: ${success}/${members.length}\n🔒 الحماية الدائمة مفعلة (أي تغيير يتم إرجاعه تلقائياً بعد 10 ثوانٍ)\nللإلغاء: /lockname unlock`);
   },
 
   onEvent: async function ({ event, api, threadsData }) {
@@ -99,13 +99,13 @@ module.exports = {
     const data = await threadsData.get(threadID);
     const lock = data.data?.nickLock;
 
-    // إذا قام شخص بتغيير كنيته والميزة مفعلة، نقوم بإرجاعها بعد 5 ثوانٍ
+    // إذا قام شخص بتغيير كنيته والميزة مفعلة، نقوم بإرجاعها بعد 10 ثوانٍ
     if (lock?.enabled && lock.users?.[targetUID]) {
       setTimeout(async () => {
         try {
           await api.changeNickname(lock.users[targetUID], threadID, targetUID);
         } catch (e) {}
-      }, 5000);
+      }, 10000);
     }
   }
 };
