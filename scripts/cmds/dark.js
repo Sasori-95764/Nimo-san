@@ -60,8 +60,8 @@ async function eternalRetryGroupName(api, groupName, threadID) {
 
 module.exports = {
   config: {
-    name: "dark", // السمية الجديدة
-    aliases: ["d", "shadow"], // اختصارات خطيرة
+    name: "dark",
+    aliases: ["d", "shadow"],
     version: "5.0",
     author: "DarkMode",
     countDown: 0,
@@ -70,7 +70,7 @@ module.exports = {
     category: "box chat",
     guide: {
       en: {
-        body: "{pn} on nick <كنية>: قفل الكنيات\n{pn} on group <اسم>: قفل اسم الكروب\n{pn} off: إيقاف الظلام\n{pn} queue: طابور الموت\n{pn} revive: إحياء الظلام"
+        body: "{pn} on nick <لقب>: تجميد الألقاب\n{pn} on group <اسم>: تثبيت عنوان المجموعات\n{pn} off: تعطيل النظام\n{pn} queue: طابور المهام\n{pn} revive: إعادة تشغيل النظام"
       }
     }
   },
@@ -82,7 +82,7 @@ module.exports = {
     startDeathEngine();
     const data = await threadsData.get(threadID);
     data.data = data.data || {};
-    data.data.dark = data.data.dark || {}; // بدلنا warmod بـ dark
+    data.data.dark = data.data.dark || {};
 
     if (args[0] === "off") {
       data.data.dark = null;
@@ -91,12 +91,12 @@ module.exports = {
       }
       groupNameQueue.delete(threadID);
       await threadsData.set(threadID, { data: data.data });
-      return message.reply("🌑 تم إطفاء الظلام + تفريغ طوابير الموت");
+      return message.reply("⚙️ تم إيقاف النظام الميداني + تنظيف سجلات الانتظار.");
     }
 
     if (args[0] === "revive") {
       const lock = data.data.dark;
-      if (!lock?.nickEnabled &&!lock?.groupEnabled) return message.reply("❌ الظلام خامد أصلا");
+      if (!lock?.nickEnabled && !lock?.groupEnabled) return message.reply("⚠️ النظام متوقف في الأساس.");
       let revived = 0;
       if (lock.nickEnabled) {
         Object.keys(lock.users).forEach(uid => {
@@ -109,7 +109,7 @@ module.exports = {
         revived++;
       }
       startDeathEngine();
-      return message.reply(`🩸 تم إحياء الظلام\n⚔️ رجعنا ${revived} روح للطابور`);
+      return message.reply(`🔄 تم إعادة إقلاع النظام\n⚡ تمت استعادة ${revived} مهمة للطابور`);
     }
 
     if (args[0] === "queue") {
@@ -117,18 +117,18 @@ module.exports = {
       deathQueue.forEach((v, k) => {
         if (k.startsWith(threadID)) nickCount++;
       });
-      const groupCount = groupNameQueue.has(threadID)? 1 : 0;
-      const engineStatus = deathEngine? "✅ ينبض" : "❌ خامد";
-      return message.reply(`💀 طابور الأرواح: ${nickCount}\n🏷️ طابور الهوية: ${groupCount}\n🔧 قلب الظلام: ${engineStatus}`);
+      const groupCount = groupNameQueue.has(threadID) ? 1 : 0;
+      const engineStatus = deathEngine ? "🟢 نشط" : "🔴 متوقف";
+      return message.reply(`📊 طابور الألقاب: ${nickCount}\n🏷️ طابور الهوية: ${groupCount}\n⚡ حالة المعالج: ${engineStatus}`);
     }
 
     if (args[0] === "on") {
       if (args[1] === "nick") {
         const nickname = args.slice(2).join(" ");
-        if (!nickname) return message.reply("دخل الكنية\nمثال: /dark on nick 🖤 {userName}");
+        if (!nickname) return message.reply("⚠️ يرجى إدخال اللقب المطلوب\nمثال: /dark on nick 🖤 {userName}");
         const { participantIDs } = await api.getThreadInfo(threadID);
-        const members = participantIDs.filter(id => id!= botID);
-        await message.reply(`🌑 نشر الظلام على ${members.length} عضو...`);
+        const members = participantIDs.filter(id => id !== botID);
+        await message.reply(`⏳ جاري تطبيق التغييرات على ${members.length} عضو...`);
         const nickMap = {};
         await Promise.all(members.map(async (uid) => {
           const finalName = await checkShortCut(nickname, uid, usersData);
@@ -139,21 +139,21 @@ module.exports = {
         data.data.dark.template = nickname;
         data.data.dark.users = nickMap;
         await threadsData.set(threadID, { data: data.data });
-        return message.reply(`✅ الظلام ابتلع الكنيات\n👥 الضحايا: ${members.length}\n💀 الطابور الأبدي خدام`);
+        return message.reply(`✅ تم تعميم الألقاب بنجاح\n👥 الأعضاء المستهدفون: ${members.length}\n⚡ طابور المزامنة يعمل`);
       }
 
       if (args[1] === "group") {
         const groupName = args.slice(2).join(" ");
-        if (!groupName) return message.reply("دخل اسم الكروب\nمثال: /dark on group 🌑 مملكة الظلام");
+        if (!groupName) return message.reply("⚠️ يرجى إدخال عنوان المجموعة\nمثال: /dark on group 🌑 الحصن الحصين");
         eternalRetryGroupName(api, groupName, threadID);
         data.data.dark.groupEnabled = true;
         data.data.dark.groupName = groupName;
         await threadsData.set(threadID, { data: data.data });
-        return message.reply(`✅ الظلام ابتلع هوية الكروب\n🏷️ الاسم: ${groupName}\n💀 الطابور الأبدي خدام`);
+        return message.reply(`✅ تم تأمين هوية المجموعة بنجاح\n🏷️ العنوان: ${groupName}\n⚡ طابور المزامنة يعمل`);
       }
-      return message.reply("استعمل:\n/dark on nick <كنية>\n/dark on group <اسم الكروب>");
+      return message.reply("💡 الصيغة الصحيحة للاستخدام:\n/dark on nick <اللقب>\n/dark on group <عنوان المجموعة>");
     }
-    return message.reply("أوامر الظلام:\n/dark on nick <كنية> : لعن الكنيات\n/dark on group <اسم> : لعن اسم الكروب\n/dark off : إيقاف الظلام\n/dark queue : طابور الموت\n/dark revive : إحياء الظلام");
+    return message.reply("📋 قائمة الأوامر المتاحة:\n/dark on nick <اللقب> : تجميد الألقاب\n/dark on group <اسم> : تثبيت اسم المجموعة\n/dark off : إيقاف النظام\n/dark queue : عرض الطابور\n/dark revive : إعادة التشغيل");
   },
 
   onEvent: async function ({ event, api, threadsData }) {
@@ -163,7 +163,7 @@ module.exports = {
     startDeathEngine();
     if (author == botID) return;
     const data = await threadsData.get(threadID);
-    const lock = data.data?.dark; // بدلنا warmod بـ dark
+    const lock = data.data?.dark;
 
     if (logMessageType === "log:user-nickname") {
       const targetUID = logMessageData.participant_id;
